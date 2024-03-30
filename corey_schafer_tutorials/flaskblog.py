@@ -45,7 +45,16 @@ def getLogin():
 	form = LoginForm()
 	return render_template("login.html", title="Login", form=form)
 
+ozellikler = [
+	{"name" : "Emre",
+	"major" : "Computer Engineering"
+  }
+]
 
+
+#@app.route("/emre")
+#def getEmrePage():
+#	return render_template("Emre.html", ozellikler = ozellikler)
 
 # this part works if we call the app with python3 'filename' | instead of 'flask run'
 if __name__ == '__main__':
