@@ -6,20 +6,12 @@
 	<title>Register</title>
 </head>
 <body>
-	<form action="/register" method="post">
-		<label for="username">Username</label>
-		<input type="text" name="username" id="username">
-		
-		<label for="email">Email</label>
-		<input type="email" name="email" id="username">
-		
-		<label for="password">Password</label>
-		<input type="password" name="password" id="username">
-		
-		<label for="password_again">Password Again</label>
-		<input type="password" name="password_again" id="username">
-	
-		<input type="submit" value="Submit">
+	<form action="" method="POST">
+		{{ form.hidden_tag() }}
+		{{ form.username }}
+		{{ form.password }}
+		{{ form.submit }}
 	</form>
+	<p>Already have an account? <a href="{{url_for('get_login')}}">Login</a></p>
 </body>
 </html>

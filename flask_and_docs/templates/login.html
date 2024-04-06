@@ -10,15 +10,12 @@
 	<p>Your request taken as {{user.username}} and {{user.email}}</p>
 	{% endif %}
 	<!-- name attribute'ları önemli geri return alırken-->
-    <form action="/login" method="POST">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
-        
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
-	<<a href="{{url_for('get_login')}}"></a>
-        <button type="submit">Submit</button>
-    </form>
+    <form action="" method="POST">
+		{{ form.hidden_tag() }}
+		{{ form.username }}
+		{{ form.password }}
+		{{ form.submit }}
+	</form>
 	<a href="{{url_for('get_index')}}">Home Page</a>
 	<a href="{{url_for('get_register')}}">Register Page</a>
 </body>
