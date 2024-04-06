@@ -6,7 +6,7 @@
 	<title>Dashbaord</title>
 </head>
 <body>
-	<h1>Hello you are logged in.</h1>
+	<h1>Hello you are logged in. {{current_user.username}}</h1>
 	<a href="{{url_for('get_logout')}}">Press here to logout</a>
 </body>
 </html>

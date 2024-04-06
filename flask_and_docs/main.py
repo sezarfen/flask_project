@@ -50,16 +50,15 @@ class LoginForm(FlaskForm):
 
 
 
-
 @app.route("/")
 def get_index():
 	return render_template("index.html")
 
 
 @app.route("/dashboard", methods = ["GET", "POST"])
-@login_required
+@login_required # this probably directly does url_for('login') # So I changed the name of the function from get_login to login Elhamdulillah
 def get_dashboard():
-	return render_template("dashboard.html")
+	return render_template("dashboard.html", current_user = current_user)
 
 
 @app.route("/register", methods = ["GET", "POST"])
@@ -71,13 +70,13 @@ def get_register():
 		new_user = User(username=form.username.data, password=hashed_password)
 		db.session.add(new_user)
 		db.session.commit()
-		return redirect(url_for("get_login"))
+		return redirect(url_for("login"))
 
 	return render_template("register.html", form=form)
 
 
 @app.route("/login", methods=["GET", "POST"])
-def get_login():
+def login():
 	form = LoginForm()
 
 	if form.validate_on_submit():
@@ -90,10 +89,10 @@ def get_login():
 
 
 @app.route("/logout", methods=["GET", "POST"])
-@login_required
+@login_required 
 def get_logout():
 	logout_user()
-	return redirect(url_for("get_login"))
+	return redirect(url_for("login"))
 
 
 if __name__ == "__main__":
