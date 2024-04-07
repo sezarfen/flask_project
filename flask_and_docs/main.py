@@ -48,6 +48,33 @@ class LoginForm(FlaskForm):
 	password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder":"Password"})
 	submit = SubmitField("Login")
 
+weapon_names = []
+weapon_damages = []
+
+class WeaponForm(FlaskForm):
+	name = StringField(validators=[InputRequired(), Length(min=3, max=25)], render_kw={"placeholder":"weapon_name"})
+	damage = StringField(validators=[InputRequired(), Length(min=1, max=3)], render_kw={"placeholder":"damage"})
+	submit = SubmitField("Generate")
+
+	
+	def validate_weapon(self, name, damage):
+		try:
+			name_index = weapon_names.index(name)
+			damage_index = weapon_damages.index(damage)
+
+		except ValueError as e:
+			raise ValidationError("Same name or same damage used.")
+			
+@app.route("/weapon_form", methods = ["GET", "POST"])
+def get_weapon_form():
+	weapon_form = WeaponForm()
+
+	if weapon_form.validate_on_submit():
+		weapon_names.append(weapon_form.name.data)
+		weapon_damages.append(weapon_form.damage.data)
+		return (redirect(url_for("get_weapon_form")))
+	# I couldn't see the weapons, I don't know why
+	return render_template("weapon_form.html", weapon_form = weapon_form, weapon_names = weapon_names, weapon_damages = weapon_damages)
 
 
 @app.route("/")
@@ -93,6 +120,10 @@ def login():
 def get_logout():
 	logout_user()
 	return redirect(url_for("login"))
+
+@app.errorhandler(404)
+def get_error(error):
+	return render_template("error.html", error = error)
 
 
 if __name__ == "__main__":
