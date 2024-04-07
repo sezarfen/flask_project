@@ -125,6 +125,9 @@ def get_logout():
 def get_error(error):
 	return render_template("error.html", error = error)
 
+@app.errorhandler(500)
+def get_internal_error(error):
+	return render_template("error.html", error = error)
 
 if __name__ == "__main__":
 	app.run(debug=True)
