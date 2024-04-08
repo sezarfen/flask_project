@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{%block content%}
+
+{% if name %}
+	<h1> Hello {{name}} !!!</h1>
+{% else %}
+	<h1>What's your name?</h1>
+	<br>
+	<form method="POST" class="form">
+		{{ form.hidden_tag() }} <!-- This will generate csrf token for us-->
+		{{ form.name.label(class="form-label") }} <!-- We can give parantheses and classes right away -->
+		{{ form.name(class="form-control") }}
+		
+		<div class="form-text">You can easily submit from here</div>
+		
+		{{ form.submit(class="btn btn-primary mt-3") }}
+	</form>
+{%endif%}
+
+{%endblock content%}
