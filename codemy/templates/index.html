@@ -1,5 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+	
+	{% for message in get_flashed_messages() %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	 	</div>
+	{% endfor %}
+	
 	<h1>Welcome to the index page, Dear {{name}}</h1>
-{% endblock content%}
+	<img src="{{url_for('static', filename='images/reverse_human.png')}}" alt="reverse_human" class="picture">
+	
+	<p id="demo">This is stuff...</p>
+
+	<script src="{{url_for('static', filename='js/myfile.js')}}"></script>
+
+	{% endblock content%}

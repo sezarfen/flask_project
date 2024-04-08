@@ -1,4 +1,7 @@
+# Flask knows to look under static folder
+
 from flask import Flask, render_template, request, redirect, url_for
+from flask import flash # for flash messages on the screen
 from flask_wtf import FlaskForm # We can also do the forms ourselves, but it is easly helps us to build forms
 from wtforms import StringField, SubmitField, FileField # Different Fields we can import
 from wtforms.validators import DataRequired # If we something pop-up when someone don't fill that area, this one take cares of it
@@ -11,13 +14,14 @@ app.config['SECRET_KEY'] = "!+wvnadscgth349G6hr8pERTB_hWrtlkt*12-G43rf"
 ## Generate Form Class
 class NamerForm(FlaskForm):
 	name = StringField("What's Your Name", validators=[DataRequired()])
-	submit = SubmitField("Submit It!")
+	submit = SubmitField(label = "Submit It!")
 
 
 
 #################################### ROUTES ####################################
 @app.route("/")
 def index():
+	flash("Successfully logged in")
 	return render_template("index.html", name = "Default")
 
 @app.route("/about")
@@ -47,4 +51,6 @@ def name():
 	if form.validate_on_submit():
 		name = form.name.data
 		form.name.data = ''
+		flash("Form Submitted Successfully!") # We don't have to pass as a paramter to render template, flash knows what to do with it
+
 	return render_template("name.html", name = name, form = form)

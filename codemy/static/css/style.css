@@ -1,0 +1,30 @@
+h1{
+	color: darkblue;
+	font-size: 60px;
+}
+
+body{
+	background-color: rgb(243, 243, 243);
+}
+
+.blue{
+	background-color: rgb(102, 172, 243);
+	min-width: 100%;
+	min-height: 5hv;
+}
+
+.red{
+	background-color: rgb(255, 111, 111);
+	min-width: 100%;
+	min-height: 5hv;
+}
+
+.picture{
+	width: 13vw;
+	height: auto;
+}
+
+#demo{
+	font-size: 13px;
+	color: blueviolet;
+}
