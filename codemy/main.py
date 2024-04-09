@@ -97,3 +97,16 @@ def add_user():
 		
 	our_users = Users.query.order_by(Users.id)
 	return render_template("add_user.html", form = form, name = name, our_users = our_users)
+
+@app.route("/user/<int:id>", methods = ["GET", "POST"])
+def get_user(id):
+	if request.method == "GET":
+		user = Users.query.get_or_404(id)
+		return render_template("update_user.html", user = user)
+	elif request.method == "POST":
+		user = Users.query.get_or_404(id)
+		user.name = request.form['name']
+		user.email = request.form['email']
+		db.session.add(user)
+		db.session.commit()
+		return redirect(url_for("add_user"))
