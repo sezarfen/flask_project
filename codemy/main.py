@@ -5,7 +5,7 @@ from flask import flash # for flash messages on the screen
 
 from flask_wtf import FlaskForm # We can also do the forms ourselves, but it is easly helps us to build forms
 from wtforms import StringField, SubmitField, EmailField, PasswordField # Different Fields we can import
-from wtforms.validators import DataRequired # If we something pop-up when someone don't fill that area, this one take cares of it
+from wtforms.validators import DataRequired, EqualTo # If we something pop-up when someone don't fill that area, this one take cares of it
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -34,12 +34,28 @@ class Users(db.Model):
 	def __repr__(self):
 		return '<Name %r>' % self.name
 	
+	def shorten_the_password(self):
+		return str(self.password)[15:30] + "..."
+	
+	def get_name(self):
+		if len(str(self.name)) > 15:
+			return str(self.name)[:12] + "..."
+		else:
+			return str(self.name)
+		
+	def get_email(self):
+		if len(str(self.email)) > 15:
+			return str(self.email)[:12] + "..."
+		else:
+			return str(self.email)
+	
 ## Generate Form for Model
 class UserForm(FlaskForm):
 	name = StringField("Name", validators=[DataRequired()])
 	email = EmailField("Email", validators=[DataRequired()])
 	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])
+	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")])
 	submit = SubmitField(label = "Submit!")
 
 
@@ -140,3 +156,26 @@ def delete_user(id):
 		print(e)
 		flash("An error occured, please check the server or the logs, if you have any...")
 	return redirect(url_for("add_user"))
+
+@app.route("/user/update_password/<int:id>", methods = ["GET", "POST"])
+def update_user_password(id):
+	if request.method == "GET":
+		return render_template("update_password.html", id = id)
+	elif request.method == "POST":
+		try:
+			user = Users.query.get(id)
+			if check_password_hash(user.password, request.form['old_pwd']):
+				p1 = request.form['new_pwd']
+				p2 = request.form['confirm_new_pwd']
+				if p1 == p2:
+					user.password = generate_password_hash(p1)
+					db.session.add(user)
+					db.session.commit()
+					flash("User password updated successfully!")
+				else:
+					flash("New password didn't confirmed twice!")
+			else:
+				flash("Old Password didn't match!")
+		except:
+			flash("An error occured!")
+		return redirect(url_for("add_user"))

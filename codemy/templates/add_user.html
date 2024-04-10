@@ -10,7 +10,7 @@
 		  </div>
 		
 		{% else %}
-		<div class="alert alert-success alert-dismissible fade show" role="alert">
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
 			 {{message}}
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		  </div>
@@ -29,6 +29,8 @@
 			{{form.favorite_color(class="form-control", placeholder= "Green" )}}
 			{{form.password.label(class="form-label")}}
 			{{form.password(class="form-control", placeholder="*****")}}
+			{{form.confirm_password.label(class="form-label")}}
+			{{form.confirm_password(class="form-control", placeholder="*****")}}
 			{{form.submit(class="btn btn-success mt-3")}}
 		</form>
 	</div>
@@ -41,6 +43,7 @@
 				<th class="col">name</th>
 				<th class="col">email</th>
 				<th class="col">Favorite Color</th>
+				<th class="col">Password</th>
 				<th class="col">action</th>
 			</tr>
 		</thead>
@@ -48,9 +51,10 @@
 			{% for our_user in our_users %}
 			<tr scope="row"> <!--table row-->
 				<td>{{our_user.id}}</td>
-				<td>{{our_user.name}}</td>
-				<td>{{our_user.email}}</td>
+				<td>{{our_user.get_name()}}</td>
+				<td>{{our_user.get_email()}}</td>
 				<td>{{our_user.favorite_color}}</td>
+				<td>{{our_user.shorten_the_password()}}</td>
 				<td>
 					<a class="btn btn-info" href="/user/{{our_user.id}}">Update</a>
 					<a class="btn btn-danger" href="{{url_for('delete_user', id = our_user.id) }}">Delete</a>

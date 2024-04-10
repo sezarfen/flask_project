@@ -25,5 +25,6 @@
 
 		<input type="submit" value="Update!" class="btn btn-info mt-3">
 		<a class="link-danger mt-5" href="{{url_for('delete_user', id = user.id)}}">Delete</a>
+		<a class="link-info mt-5" href="{{url_for('update_user_password', id = user.id)}}">Update Password</a>
 	</form>
 {% endblock content%}
