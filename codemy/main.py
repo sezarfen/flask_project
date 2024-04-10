@@ -4,11 +4,12 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask import flash # for flash messages on the screen
 
 from flask_wtf import FlaskForm # We can also do the forms ourselves, but it is easly helps us to build forms
-from wtforms import StringField, SubmitField, EmailField # Different Fields we can import
+from wtforms import StringField, SubmitField, EmailField, PasswordField # Different Fields we can import
 from wtforms.validators import DataRequired # If we something pop-up when someone don't fill that area, this one take cares of it
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
@@ -27,6 +28,7 @@ class Users(db.Model):
 	email = db.Column(db.String(125), nullable = False, unique = True)
 	date_added = db.Column(db.DateTime, default = datetime.utcnow)
 	favorite_color = db.Column(db.String(25))
+	password = db.Column(db.String(101)) ## to not break the database
 
 	## Generate a String
 	def __repr__(self):
@@ -37,6 +39,7 @@ class UserForm(FlaskForm):
 	name = StringField("Name", validators=[DataRequired()])
 	email = EmailField("Email", validators=[DataRequired()])
 	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
+	password = PasswordField("Password", validators=[DataRequired()])
 	submit = SubmitField(label = "Submit!")
 
 
@@ -90,7 +93,8 @@ def add_user():
 	if form.validate_on_submit():
 		user = Users.query.filter_by(email = form.email.data).first()
 		if user is None:
-			newUser = Users(name=form.name.data, email = form.email.data, favorite_color = form.favorite_color.data)
+			hashed = generate_password_hash(form.password.data)
+			newUser = Users(name=form.name.data, email = form.email.data, favorite_color = form.favorite_color.data, password = hashed)
 			db.session.add(newUser)
 			db.session.commit()
 			flash("User Added successfully!")
@@ -113,8 +117,14 @@ def get_user(id):
 		user.name = request.form['name']
 		user.email = request.form['email']
 		user.favorite_color = request.form['favorite_color']
-		db.session.add(user)
-		db.session.commit()
+		confirm_password = request.form['confirm_password']
+		if check_password_hash(user.password, confirm_password):
+			db.session.add(user)
+			db.session.commit()
+			flash("User updated succesfully!")
+		else:
+			flash("Password didn't match")
+			return redirect(url_for("get_user", id = user.id))
 		return redirect(url_for("add_user"))
 	else:
 		return redirect(url_for("add_user"))
@@ -128,5 +138,5 @@ def delete_user(id):
 		flash("User deleted successfully!")
 	except Exception as e:
 		print(e)
-		flash("An error occured")
+		flash("An error occured, please check the server or the logs, if you have any...")
 	return redirect(url_for("add_user"))

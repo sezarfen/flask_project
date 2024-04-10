@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+	{% for message in get_flashed_messages() %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	{% endfor %}
+	
 	<form class="form" method="POST" action="">
 
 		<label for="name" class="form-label">Name</label>
@@ -12,7 +20,10 @@
 		<label for="favorite_color" class="form-label">Favorite Color</label>
 		<input type="text" class="form-control" value="{{user.favorite_color}}" placeholder="{{user.favorite_color}}" name="favorite_color">
 
-			<input type="submit" value="Update!" class="btn btn-info mt-3">
-			<a class="link-danger mt-5" href="{{url_for('delete_user', id = user.id)}}">Delete</a>
+		<label for="confirm_password" class="form-label">Confirm password</label>
+		<input type="text" class="form-control" placeholder="User password" name="confirm_password">
+
+		<input type="submit" value="Update!" class="btn btn-info mt-3">
+		<a class="link-danger mt-5" href="{{url_for('delete_user', id = user.id)}}">Delete</a>
 	</form>
 {% endblock content%}
