@@ -118,3 +118,15 @@ def get_user(id):
 		return redirect(url_for("add_user"))
 	else:
 		return redirect(url_for("add_user"))
+	
+@app.route("/user/delete/<int:id>")
+def delete_user(id):
+	try:
+		user = Users.query.get_or_404(id)
+		db.session.delete(user)
+		db.session.commit()
+		flash("User deleted successfully!")
+	except Exception as e:
+		print(e)
+		flash("An error occured")
+	return redirect(url_for("add_user"))

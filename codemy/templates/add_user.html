@@ -3,7 +3,7 @@
 {% block content %}
 
 	{% for message in get_flashed_messages() %}
-		{% if message == "User Added successfully!" %}
+		{% if message == "User Added successfully!" or message == "User deleted successfully!" %}
 			<div class="alert alert-success alert-dismissible fade show" role="alert">
 			{{message}}
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -49,7 +49,10 @@
 				<td>{{our_user.name}}</td>
 				<td>{{our_user.email}}</td>
 				<td>{{our_user.favorite_color}}</td>
-				<td><a class="btn btn-info" href="/user/{{our_user.id}}">Update</a></td>
+				<td>
+					<a class="btn btn-info" href="/user/{{our_user.id}}">Update</a>
+					<a class="btn btn-danger" href="{{url_for('delete_user', id = our_user.id) }}">Delete</a>
+				</td>
 			</tr>
 			{% endfor %}
 		</tbody>
