@@ -2,10 +2,16 @@
 
 {% block content %}
 	<form class="form" method="POST" action="">
+
 		<label for="name" class="form-label">Name</label>
 		<input type="text" class="form-control" value="{{user.name}}" placeholder="{{user.name}}" name="name">
+
 		<label for="email" class="form-label">Email</label>
 		<input type="text" class="form-control" value="{{user.email}}" placeholder="{{user.email}}" name="email">
+
+		<label for="favorite_color" class="form-label">Favorite Color</label>
+		<input type="text" class="form-control" value="{{user.favorite_color}}" placeholder="{{user.favorite_color}}" name="favorite_color">
+
 		<input type="submit" value="Update!" class="btn btn-info mt-3">
 	</form>
 {% endblock content%}
