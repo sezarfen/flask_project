@@ -28,7 +28,7 @@ class Users(db.Model):
 	email = db.Column(db.String(125), nullable = False, unique = True)
 	date_added = db.Column(db.DateTime, default = datetime.utcnow)
 	favorite_color = db.Column(db.String(25))
-	password = db.Column(db.String(101)) ## to not break the database
+	password = db.Column(db.String(101), nullable = False)
 
 	## Generate a String
 	def __repr__(self):
