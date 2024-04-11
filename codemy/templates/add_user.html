@@ -51,8 +51,8 @@
 			{% for our_user in our_users %}
 			<tr scope="row"> <!--table row-->
 				<td>{{our_user.id}}</td>
-				<td>{{our_user.get_name()}}</td>
-				<td>{{our_user.get_email()}}</td>
+				<td>{{our_user.name}}</td>
+				<td>{{our_user.email}}</td>
 				<td>{{our_user.favorite_color}}</td>
 				<td>{{our_user.shorten_the_password()}}</td>
 				<td>

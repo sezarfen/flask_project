@@ -55,7 +55,7 @@ class UserForm(FlaskForm):
 	email = EmailField("Email", validators=[DataRequired()])
 	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])
-	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")])
+	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")]) # we can use that message later
 	submit = SubmitField(label = "Submit!")
 
 
@@ -109,7 +109,7 @@ def add_user():
 	if form.validate_on_submit():
 		user = Users.query.filter_by(email = form.email.data).first()
 		if user is None:
-			hashed = generate_password_hash(form.password.data)
+			hashed = generate_password_hash(form.password.data, "sha256")
 			newUser = Users(name=form.name.data, email = form.email.data, favorite_color = form.favorite_color.data, password = hashed)
 			db.session.add(newUser)
 			db.session.commit()
@@ -119,6 +119,8 @@ def add_user():
 		name = form.name.data
 		form.name.data = ""
 		form.email.data = ""
+		form.favorite_color.data = ""
+		form.password.data = ""
 		
 	our_users = Users.query.order_by(Users.id)
 	return render_template("add_user.html", form = form, name = name, our_users = our_users)
@@ -173,7 +175,7 @@ def update_user_password(id):
 					db.session.commit()
 					flash("User password updated successfully!")
 				else:
-					flash("New password didn't confirmed twice!")
+					flash("New password must be confirmed!")
 			else:
 				flash("Old Password didn't match!")
 		except:
