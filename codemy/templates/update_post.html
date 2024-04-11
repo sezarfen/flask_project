@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% block content %}
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	{{message}}
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+
+<form class="form" method="POST">
+	<label for="title" class="form-label">Title</label>
+	<input type="text" class="form-control" name="title" value="{{post.title}}">
+
+	<label for="content" class="form-label">Content</label>
+	<textarea name="content" id="content" rows="5" class="form-control">{{post.content}}</textarea>
+
+	<label for="author" class="form-label">Author</label>
+	<input type="text" class="form-control" name="author" value="{{post.author}}">
+
+	<label for="slug" class="form-label">Slug</label>
+	<input type="text" class="form-control" name="slug" value="{{post.slug}}">
+
+	<input type="submit" class="btn btn-info mt-3" value="Update!">
+</form>
+
+{% endblock content %}

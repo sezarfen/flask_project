@@ -18,12 +18,13 @@
 
 <div class="row">
 	{% for post in posts%}
-		<div class="card" style="width: 18rem;">
+		<div class="card m-3" style="width: 18rem;">
 			<div class="card-body">
 				<h5 class="card-title">{{post.title}}</h5>
 				<h6 class="card-subtitle mb-2 text-muted">{{post.title}}</h6>
 				<p class="card-text">{{post.small_content()}}</p>
-				<a href="#" class="card-link">Read More</a>
+				<small>Author : {{post.author}}</small> <br>
+				<a href="{{url_for('get_single_post', slug = post.slug)}}" class="card-link">Read More</a>
 			</div>
 	</div>
 	{%endfor%}

@@ -106,7 +106,6 @@ class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
 	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
 	author = StringField("Author", validators=[DataRequired()])
-	date_posted = StringField("Post Date") # validators DataRequired yapınca problem oluşuyordu
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField(label="Submit!")
 
@@ -299,3 +298,27 @@ def add_post():
 def get_posts():
 	posts = Post.query.all()
 	return render_template("posts.html", posts = posts)
+
+@app.route("/post/<string:slug>")
+def get_single_post(slug):
+	post = Post.query.filter_by(slug = slug).first()
+	return render_template("single_post_page.html", post = post)
+
+@app.route("/post/edit/<int:id>", methods=["GET", "POST"])
+def get_edit_post(id): # additional check might be added
+	post = Post.query.get_or_404(id)
+	try:
+		if request.method == "POST":
+			post.title = request.form["title"]
+			post.content = request.form["content"]
+			post.author = request.form["author"]
+			post.slug = request.form["slug"]
+			db.session.add(post)
+			db.session.commit()
+			flash("Post Updated Successfully!")
+		elif request.method == "GET": 
+			post = Post.query.get_or_404(id)
+	except:
+		flash("error") # can change later
+	return render_template("update_post.html", post = post)
+
