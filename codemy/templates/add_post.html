@@ -3,7 +3,7 @@
 
 {% block content %}
 
-		{% for message in get_flashed_messages() %}
+	{% for message in get_flashed_messages() %}
 		<div class="alert alert-warning alert-dismissible fade show" role="alert">
 			{{message}}
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -12,7 +12,7 @@
 
 	<h1>Add Post</h1>
 		<br>
-	<form action="" method="post" class="form shadow p-3 mb-5 bg-body-tertiary rounded">
+	<form method="POST" class="form shadow p-3 mb-5 bg-body-tertiary rounded">
 		
 		{{form.hidden_tag()}}
 		

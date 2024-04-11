@@ -72,11 +72,13 @@ class Post(db.Model):
 	date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 	slug = db.Column(db.String(255)) # for a better url example instead of using /blog/1 using /blog/my_blog
 
-	def __init__(self, title, content, author, slug) -> None:
-		self.title = title
-		self.content = content
-		self.author = author
-		self.slug = slug
+	def small_content(self):
+		if len(self.content) > 15:
+			return self.content[:15] + "..."
+		else:
+			return self.content
+		
+
 #################################################################################
 ####################################  FORMS  #################################### // Let's don't forget {{form.hidden_tag()}}
 #################################################################################
@@ -104,7 +106,7 @@ class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
 	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
 	author = StringField("Author", validators=[DataRequired()])
-	date_posted = StringField("Post Date", validators=[DataRequired()])
+	date_posted = StringField("Post Date") # validators DataRequired yapınca problem oluşuyordu
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField(label="Submit!")
 
@@ -276,7 +278,8 @@ def add_post():
 	form = PostForm()
 
 	if form.validate_on_submit():
-		post = Post(form.title.data, form.content.data, form.author.data, form.slug.data)
+		post = Post(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
+		print("ccccc")
 		form.title.data = ""
 		form.content.data = ""
 		form.author.data = ""
@@ -288,5 +291,11 @@ def add_post():
 		except:
 			flash("An Error Occured, Post Couldn't Added!")
 		# Clear The Form Here
+		return redirect(url_for("get_posts"))
 
 	return render_template("add_post.html", form = form)
+
+@app.route("/posts", methods=["GET"])
+def get_posts():
+	posts = Post.query.all()
+	return render_template("posts.html", posts = posts)

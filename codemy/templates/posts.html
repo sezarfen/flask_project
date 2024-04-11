@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<div class="row mb-3">
+	<a href="{{url_for('add_post')}}" class="btn btn-info">Add New Post</a>
+</div>
+
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	{{message}}
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{%endfor%}
+
+<div class="row">
+	{% for post in posts%}
+		<div class="card" style="width: 18rem;">
+			<div class="card-body">
+				<h5 class="card-title">{{post.title}}</h5>
+				<h6 class="card-subtitle mb-2 text-muted">{{post.title}}</h6>
+				<p class="card-text">{{post.small_content()}}</p>
+				<a href="#" class="card-link">Read More</a>
+			</div>
+	</div>
+	{%endfor%}
+</div>
+{% endblock content %}
