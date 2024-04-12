@@ -5,6 +5,8 @@
 	{% include 'shared/flash_message.html' %}
 	
 	<form class="form" method="POST" action="">
+
+		<!-- Because we use current_user.id on dashboard, user will be same with current_user İnşaAllah -->
 		
 		<label for="username" class="form-label">Username</label>
 		<input type="text" class="form-control" value="{{user.username}}" placeholder="{{user.username}}" name="username">

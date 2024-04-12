@@ -104,8 +104,7 @@ class UserForm(FlaskForm):
 	email = EmailField("Email", validators=[DataRequired()])
 	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])
-	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password",
-																							 message="Passwords must match!")])  # we can use that message later
+	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")])  # we can use that message later
 	submit = SubmitField(label="Submit!")
 
 
@@ -128,7 +127,7 @@ class LoginForm(FlaskForm):
 	submit = SubmitField("Login!")
 
 
-#################################################################################
+######################### #######################################################
 ####################################   API   ####################################
 #################################################################################
 
@@ -319,15 +318,18 @@ def add_post(): # We don't need to put @login_required all the time, we can also
 
 	return render_template("post/add_post.html", form = form)
 
+
 @app.route("/posts", methods=["GET"])
 def get_posts():
 	posts = Post.query.all()
 	return render_template("post/posts.html", posts = posts)
 
+
 @app.route("/post/<string:slug>")
 def get_single_post(slug):
 	post = Post.query.filter_by(slug = slug).first()
 	return render_template("post/single_post_page.html", post = post)
+
 
 @app.route("/post/edit/<int:id>", methods=["GET", "POST"])
 @login_required
@@ -353,6 +355,7 @@ def get_edit_post(id): # additional check might be added
 	except:
 		flash("error") # can change later
 	return render_template("post/update_post.html", post = post)
+
 
 @app.route("/post/delete/<int:id>")
 @login_required
@@ -393,6 +396,7 @@ def get_login():
 @login_required
 def get_dashboard():
 	return render_template("dashboard.html")
+
 
 # Generate Logout Function
 @app.route("/logout", methods=["GET", "POST"])

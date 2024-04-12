@@ -1,0 +1,1 @@
+Add Current User's informations to the blog post, this might require some migrations on the post model but, we can take a look at it İnşaAllah
