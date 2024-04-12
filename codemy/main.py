@@ -370,6 +370,9 @@ def get_edit_post(id): # additional check might be added
 def delete_post(id):
 	try:
 		post = Post.query.get_or_404(id)
+		if post.author != current_user.username:
+			flash(f"This post does not belong to you, please contact with Author: {post.author}")
+			return redirect(url_for("get_single_post", slug = post.slug))
 		db.session.delete(post)
 		db.session.commit()
 		flash("Post Deleted Successfully!")
