@@ -10,6 +10,9 @@
 	{% endfor %}
 	
 	<form class="form" method="POST" action="">
+		
+		<label for="username" class="form-label">Username</label>
+		<input type="text" class="form-control" value="{{user.username}}" placeholder="{{user.username}}" name="username">
 
 		<label for="name" class="form-label">Name</label>
 		<input type="text" class="form-control" value="{{user.name}}" placeholder="{{user.name}}" name="name">

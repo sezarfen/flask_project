@@ -21,8 +21,10 @@
 	<div class="shadow p-3 mt-1 bg-body-tertiary rounded">
 		<form method="POST">
 			{{form.hidden_tag()}}
+			{{form.username.label(class="form-label")}}
+			{{form.username(class="form-control", placeholder = "Username")}}
 			{{form.name.label(class="form-label")}}
-			{{form.name(class="form-control", placeholder = "Username")}}
+			{{form.name(class="form-control", placeholder = "Name")}}
 			{{form.email.label(class="form-label")}}
 			{{form.email(class="form-control", placeholder = "someone@somewhere")}}
 			{{form.favorite_color.label(class="form-label")}}
@@ -40,6 +42,7 @@
 		<thead>
 			<tr>
 				<th class="col">#</th>
+				<th class="col">username</th>
 				<th class="col">name</th>
 				<th class="col">email</th>
 				<th class="col">Favorite Color</th>
@@ -51,6 +54,7 @@
 			{% for our_user in our_users %}
 			<tr scope="row"> <!--table row-->
 				<td>{{our_user.id}}</td>
+				<td>{{our_user.username}}</td>
 				<td>{{our_user.name}}</td>
 				<td>{{our_user.email}}</td>
 				<td>{{our_user.favorite_color}}</td>

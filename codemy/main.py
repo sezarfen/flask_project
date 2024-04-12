@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms.widgets import TextArea
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
 #################################################################################
 #################################### CONFIGS ####################################
@@ -33,8 +34,9 @@ migrate = Migrate(app, db)
 
 
 # Generate Model
-class Users(db.Model):
+class Users(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(25), nullable=False) # unique=True causes a problem
 	name = db.Column(db.String(55), nullable=False)
 	email = db.Column(db.String(125), nullable=False, unique=True)
 	date_added = db.Column(db.DateTime, default=datetime.utcnow)
@@ -87,6 +89,7 @@ class Post(db.Model):
 
 # Generate Form for Model
 class UserForm(FlaskForm):
+	username = StringField("Username", validators=[DataRequired()])
 	name = StringField("Name", validators=[DataRequired()])
 	email = EmailField("Email", validators=[DataRequired()])
 	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
@@ -187,28 +190,29 @@ def name():
 
 @app.route("/user/add", methods=["GET", "POST"])
 def add_user():
-	name = None
+	username = None
 	form = UserForm()
 
 	if form.validate_on_submit():
 		user = Users.query.filter_by(email=form.email.data).first()
 		if user is None:
-			hashed = generate_password_hash(form.password.data, "sha256")
-			newUser = Users(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
+			hashed = generate_password_hash(form.password.data)
+			newUser = Users(username=form.username.data, name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
 							password=hashed)
 			db.session.add(newUser)
 			db.session.commit()
 			flash("User Added successfully!")
 		else:
 			flash("User not added, Email adress is already in use!")
-		name = form.name.data
+		username = form.username.data # I think, this is not in use currently
+		form.username.data = ""
 		form.name.data = ""
 		form.email.data = ""
 		form.favorite_color.data = ""
 		form.password.data = ""
 
 	our_users = Users.query.order_by(Users.id)
-	return render_template("user/add_user.html", form=form, name=name, our_users=our_users)
+	return render_template("user/add_user.html", form=form, username=username, our_users=our_users)
 
 
 @app.route("/user/<int:id>", methods=["GET", "POST"])
@@ -218,6 +222,7 @@ def get_user(id):
 		return render_template("user/update_user.html", user=user)
 	elif request.method == "POST":
 		user = Users.query.get_or_404(id)
+		user.username = request.form['username']
 		user.name = request.form['name']
 		user.email = request.form['email']
 		user.favorite_color = request.form['favorite_color']
@@ -278,7 +283,6 @@ def add_post():
 
 	if form.validate_on_submit():
 		post = Post(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
-		print("ccccc")
 		form.title.data = ""
 		form.content.data = ""
 		form.author.data = ""
@@ -328,3 +332,13 @@ def get_edit_post(id): # additional check might be added
 		flash("error") # can change later
 	return render_template("update_post.html", post = post)
 
+@app.route("/post/delete/<int:id>")
+def delete_post(id):
+	try:
+		post = Post.query.get_or_404(id)
+		db.session.delete(post)
+		db.session.commit()
+		flash("Post Deleted Successfully!")
+	except:
+		return redirect(url_for("error", err = 404))
+	return redirect(url_for("get_posts"))
