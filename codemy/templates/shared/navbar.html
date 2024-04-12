@@ -15,17 +15,41 @@
 		  <li class="nav-item">
 			<a class="nav-link" href="{{url_for('name')}}">Name</a>
 		  </li>
+		 
+		{% if current_user.is_anonymous %} <!-- This property should return True if this is an anonymous user. (Actual users should return False instead.) -->
+		 
 		  <li class="nav-item">
-			<a class="nav-link" href="{{url_for('add_user')}}">Add User</a>
+			<a class="nav-link" href="{{url_for('add_user')}}">Register</a>
 		  </li>
+		 
+		{% endif %}
+		  
 		  <li class="nav-item">
 			<a class="nav-link" href="{{url_for('get_posts')}}">Posts</a>
 		  </li>
+
+		{% if current_user.is_authenticated %} <!-- Flask keeps track of it -->
+		  
+		  <li class="nav-item">
+			<a class="nav-link" href="{{url_for('get_dashboard')}}">Dashboard</a>
+		  </li>
+
+		  <li class="nav-item">
+			<a class="nav-link link-danger" href="{{url_for('logout')}}">Logout</a>
+		  </li>
+		 
+		{% else %}
+		  
 		  <li class="nav-item">
 			<a class="nav-link" href="{{url_for('get_login')}}">Login</a>
 		  </li>
+		  
+		{% endif %}
 
 		</ul>
 	  </div>
+	  {% if current_user.is_authenticated %}
+	 	Hello <strong>{{current_user.name}}</strong> 
+	  {% endif %}
 	</div>
   </nav>

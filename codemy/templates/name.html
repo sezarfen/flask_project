@@ -1,13 +1,7 @@
 {% extends 'base.html' %}
 {%block content%}
 
-{% for message in get_flashed_messages() %}
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-	Hey {{name}} - {{message}}
-	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-{% endfor %}
-
+{% include 'shared/flash_message.html' %}
 
 {% if name %}
 	<h1> Hello {{name}} !!!</h1>

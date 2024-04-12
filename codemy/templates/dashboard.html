@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	{% include 'shared/flash_message.html'%}
+
+	<h1>Welcome to the dashboard!</h1>
+
+	<div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+		<h2>Hello <span style="color: red;">{{current_user.username}}!</span></h2>
+		<small> <strong>Email:</strong> {{current_user.email}} </small><br>
+		<small> <strong>Favorite Color:</strong> {{current_user.favorite_color}} </small><br>
+		<small> <strong>Account Date:</strong> {{current_user.date_added}} </small><br>
+	</div>
+
+	<a href="{{url_for('logout')}}" class="link-danger">Log Out</a>
+
+
+{% endblock content %}

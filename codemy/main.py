@@ -27,6 +27,16 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 # Initialize The Database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+# Flask Login Stuff
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "get_login" # The function that login will redirect, if login_required for example, works like url_for('get_login')
+login_manager.login_message = "Please Login first to visit that website." # The message to flash when a user is redirected to the login page.
+
+@login_manager.user_loader
+def load_user(user_id):
+	return Users.query.get(int(user_id))
+
 
 ################################################################################
 #################################### MODELS ####################################
@@ -301,17 +311,17 @@ def add_post():
 		# Clear The Form Here
 		return redirect(url_for("get_posts"))
 
-	return render_template("add_post.html", form = form)
+	return render_template("post/add_post.html", form = form)
 
 @app.route("/posts", methods=["GET"])
 def get_posts():
 	posts = Post.query.all()
-	return render_template("posts.html", posts = posts)
+	return render_template("post/posts.html", posts = posts)
 
 @app.route("/post/<string:slug>")
 def get_single_post(slug):
 	post = Post.query.filter_by(slug = slug).first()
-	return render_template("single_post_page.html", post = post)
+	return render_template("post/single_post_page.html", post = post)
 
 @app.route("/post/edit/<int:id>", methods=["GET", "POST"])
 def get_edit_post(id): # additional check might be added
@@ -330,12 +340,12 @@ def get_edit_post(id): # additional check might be added
 				return redirect(url_for("single_post_page", slug = post.slug))
 			else:
 				flash("this slug is already in use!")
-				return render_template("update_post.html", post = post)
+				return render_template("post/update_post.html", post = post)
 		elif request.method == "GET": 
 			post = Post.query.get_or_404(id)
 	except:
 		flash("error") # can change later
-	return render_template("update_post.html", post = post)
+	return render_template("post/update_post.html", post = post)
 
 @app.route("/post/delete/<int:id>")
 def delete_post(id):
@@ -353,4 +363,33 @@ def delete_post(id):
 def get_login():
 	form = LoginForm()
 
+	if form.validate_on_submit():
+		user = Users.query.filter_by(username = form.username.data).first()
+		if user:
+			# Check the hash
+			if check_password_hash(user.password, form.password.data):
+				# User can log in
+				login_user(user)
+				flash("Logged In Successfully!")
+				return redirect(url_for("get_dashboard"))
+			else:
+				flash("Wrong password, please try again!")
+		else:
+			flash("This user does not exist, try again.")
+
+
 	return render_template("login.html", form=form)
+
+
+@app.route("/dashboard")
+@login_required
+def get_dashboard():
+	return render_template("dashboard.html")
+
+# Generate Logout Function
+@app.route("/logout", methods=["GET", "POST"])
+@login_required
+def logout():
+	logout_user()
+	flash("Logged Out Successfully!")
+	return redirect(url_for("get_login"))

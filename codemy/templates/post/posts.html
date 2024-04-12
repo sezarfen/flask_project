@@ -2,19 +2,11 @@
 
 {% block content %}
 
-
-
 <div class="row mb-3">
 	<a href="{{url_for('add_post')}}" class="btn btn-info">Add New Post</a>
 </div>
 
-
-{% for message in get_flashed_messages() %}
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-	{{message}}
-	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{%endfor%}
+{% include 'shared/flash_message.html' %}
 
 <div class="row">
 	{% for post in posts%}
