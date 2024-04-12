@@ -1,5 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 
+{% include 'flash_message.html' %}
+
 <h1>{{post.title}}</h1>
 <small>{{post.slug}}</small> <br>
 <small>{{post.date_posted}}</small>

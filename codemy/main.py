@@ -309,14 +309,19 @@ def get_edit_post(id): # additional check might be added
 	post = Post.query.get_or_404(id)
 	try:
 		if request.method == "POST":
-			post.title = request.form["title"]
-			post.content = request.form["content"]
-			post.author = request.form["author"]
-			post.slug = request.form["slug"]
-			db.session.add(post)
-			db.session.commit()
-			flash("Post Updated Successfully!")
-			return redirect(url_for("get_single_post", slug = post.slug))
+			slug_check = Post.query.filter_by(slug = request.form["slug"]).first()
+			if post.slug == request.form["slug"] or slug_check is None:
+				post.title = request.form["title"]
+				post.content = request.form["content"]
+				post.author = request.form["author"]
+				post.slug = request.form["slug"]
+				db.session.add(post)
+				db.session.commit()
+				flash("Post Updated Successfully!")
+				return redirect(url_for("single_post_page", slug = post.slug))
+			else:
+				flash("this slug is already in use!")
+				return render_template("update_post.html", post = post)
 		elif request.method == "GET": 
 			post = Post.query.get_or_404(id)
 	except:
