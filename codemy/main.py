@@ -117,7 +117,7 @@ class NamerForm(FlaskForm):
 class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
 	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
-	author = StringField("Author", validators=[DataRequired()])
+	author = StringField("Author", validators=[DataRequired()], render_kw={'readonly':''})
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField(label="Submit!")
 
@@ -301,7 +301,7 @@ def update_user_password(id):
 def add_post(): # We don't need to put @login_required all the time, we can also add logic to html files
 	form = PostForm()
 
-	if form.validate_on_submit():
+	if form.validate_on_submit(): # I think this already indicates request.method == "POST"
 		post = Post(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
 		form.title.data = ""
 		form.content.data = ""
@@ -315,6 +315,8 @@ def add_post(): # We don't need to put @login_required all the time, we can also
 			flash("An Error Occured, Post Couldn't Added!")
 		# Clear The Form Here
 		return redirect(url_for("get_posts"))
+	else:
+		print(form.errors)
 
 	return render_template("post/add_post.html", form = form)
 
@@ -328,6 +330,9 @@ def get_posts():
 @app.route("/post/<string:slug>")
 def get_single_post(slug):
 	post = Post.query.filter_by(slug = slug).first()
+	if post is None:
+		flash("Couldn't find that post")
+		return redirect(url_for("get_posts"))
 	return render_template("post/single_post_page.html", post = post)
 
 
@@ -335,6 +340,9 @@ def get_single_post(slug):
 @login_required
 def get_edit_post(id): # additional check might be added
 	post = Post.query.get_or_404(id)
+	if post.author != current_user.username:
+		flash(f"This post does not belong to you, please contact with Author: {post.author}")
+		return redirect(url_for("get_single_post", slug = post.slug))
 	try:
 		if request.method == "POST":
 			slug_check = Post.query.filter_by(slug = request.form["slug"]).first()

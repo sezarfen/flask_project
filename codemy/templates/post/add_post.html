@@ -20,7 +20,7 @@
 		{{form.content(class="form-control", rows="5")}} <!--rows indicates, how big does the box seen-->
 
 		{{form.author.label(class="form-label")}}
-		{{form.author(class="form-control")}}
+		{{form.author(class="form-control", value=current_user.username)}} <!-- disabled attribute added to the class -->
 
 		{{form.slug.label(class="form-label")}}
 		{{form.slug(class="form-control", placeholder="my_awesome_title")}}

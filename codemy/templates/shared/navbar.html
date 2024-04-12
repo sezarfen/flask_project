@@ -49,7 +49,9 @@
 		</ul>
 	  </div>
 	  {% if current_user.is_authenticated %}
-	 	Hello <strong>{{current_user.name}}</strong> 
+	  <a href="{{url_for('get_dashboard')}}" class="link-dark">
+		  {{current_user.username}} 
+	  </a>
 	  {% endif %}
 	</div>
   </nav>
