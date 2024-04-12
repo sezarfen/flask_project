@@ -112,6 +112,11 @@ class PostForm(FlaskForm):
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField(label="Submit!")
 
+class LoginForm(FlaskForm):
+	username = StringField("Username", validators=[DataRequired()])
+	password = PasswordField("Password", validators=[DataRequired()])
+	submit = SubmitField("Login!")
+
 
 #################################################################################
 ####################################   API   ####################################
@@ -342,3 +347,10 @@ def delete_post(id):
 	except:
 		return redirect(url_for("error", err = 404))
 	return redirect(url_for("get_posts"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def get_login():
+	form = LoginForm()
+
+	return render_template("login.html", form=form)
