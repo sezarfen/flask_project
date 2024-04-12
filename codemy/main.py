@@ -316,6 +316,7 @@ def get_edit_post(id): # additional check might be added
 			db.session.add(post)
 			db.session.commit()
 			flash("Post Updated Successfully!")
+			return redirect(url_for("get_single_post", slug = post.slug))
 		elif request.method == "GET": 
 			post = Post.query.get_or_404(id)
 	except:

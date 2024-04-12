@@ -1,0 +1,31 @@
+<footer style="margin-top: auto;">
+	<div class="bg-body-tertiary text-white pt-5 pb-4">
+		<div class="container">
+			<div class="row">
+				<div class="col-8">
+					<div class="row">
+						<div class="col-4">
+							<img src="{{url_for('static', filename='images/background.png')}}" alt="Reverse Human" class="img-thumbnail">
+						</div>
+						<div class="col-8 align-middle" style="display: flex; align-items: center; gap: 1vw;">
+							<a class="link-dark mt-5" href="{{url_for('index')}}">Home</a>
+							<a class="link-dark mt-5" href="{{url_for('form')}}">Form</a>
+							<a class="link-dark mt-5" href="{{url_for('name')}}">Name</a>
+							<a class="link-dark mt-5" href="{{url_for('add_user')}}">Add User</a>
+							<a class="link-dark mt-5" href="{{url_for('get_posts')}}">Posts</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="card" style="width: 18rem;">
+						<ul class="list-group list-group-flush">
+						  <li class="list-group-item">Contact</li>
+						  <li class="list-group-item">Features</li>
+						  <li class="list-group-item">News</li>
+						</ul>
+					  </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
