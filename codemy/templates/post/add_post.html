@@ -5,6 +5,8 @@
 
 	{% include 'shared/flash_message.html' %}
 
+
+	{% if current_user.is_authenticated %}
 	<h1>Add Post</h1>
 		<br>
 	<form method="POST" class="form shadow p-3 mb-5 bg-body-tertiary rounded">
@@ -24,6 +26,11 @@
 		{{form.slug(class="form-control", placeholder="my_awesome_title")}}
 
 		{{form.submit(class="btn btn-info mt-3")}}
-
 	</form>
+
+	{% else %}
+	<h3> Sorry, you are not allowed to add post currently, please logged in or talk to the administrator if you are thinking something is wrong </h3>
+	<a href="{{url_for('get_login')}}" class="link-info">Login</a>
+	{% endif %}
+
 {% endblock content %}

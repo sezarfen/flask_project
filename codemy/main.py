@@ -204,7 +204,7 @@ def name():
 
 
 @app.route("/user/add", methods=["GET", "POST"])
-def add_user():
+def add_user(): # Register Page
 	username = None
 	form = UserForm()
 
@@ -231,7 +231,11 @@ def add_user():
 
 
 @app.route("/user/<int:id>", methods=["GET", "POST"])
+@login_required
 def get_user(id):
+	if int(current_user.id) != id:
+		flash("You cannot edit that user!")
+		return redirect(url_for("get_dashboard"))
 	if request.method == "GET":
 		user = Users.query.get_or_404(id)
 		return render_template("user/update_user.html", user=user)
@@ -255,6 +259,7 @@ def get_user(id):
 
 
 @app.route("/user/delete/<int:id>")
+@login_required
 def delete_user(id):
 	try:
 		user = Users.query.get_or_404(id)
@@ -268,6 +273,7 @@ def delete_user(id):
 
 
 @app.route("/user/update_password/<int:id>", methods=["GET", "POST"])
+@login_required
 def update_user_password(id):
 	if request.method == "GET":
 		name = Users.query.get_or_404(id).name
@@ -293,7 +299,7 @@ def update_user_password(id):
 	
 
 @app.route("/add-post", methods=["GET", "POST"])
-def add_post():
+def add_post(): # We don't need to put @login_required all the time, we can also add logic to html files
 	form = PostForm()
 
 	if form.validate_on_submit():
@@ -324,6 +330,7 @@ def get_single_post(slug):
 	return render_template("post/single_post_page.html", post = post)
 
 @app.route("/post/edit/<int:id>", methods=["GET", "POST"])
+@login_required
 def get_edit_post(id): # additional check might be added
 	post = Post.query.get_or_404(id)
 	try:
@@ -348,6 +355,7 @@ def get_edit_post(id): # additional check might be added
 	return render_template("post/update_post.html", post = post)
 
 @app.route("/post/delete/<int:id>")
+@login_required
 def delete_post(id):
 	try:
 		post = Post.query.get_or_404(id)
