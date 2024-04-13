@@ -270,7 +270,8 @@ def add_post(): # We don't need to put @login_required all the time, we can also
 	form = PostForm()
 
 	if form.validate_on_submit(): # I think this already indicates request.method == "POST"
-		post = Post(title=form.title.data, content=form.content.data, slug=form.slug.data)
+		poster_id = current_user.id
+		post = Post(title=form.title.data, content=form.content.data, slug=form.slug.data, poster_id = poster_id)
 		form.title.data = ""
 		form.content.data = ""
 		form.slug.data = ""
@@ -307,6 +308,9 @@ def get_single_post(slug):
 @login_required
 def get_edit_post(id): # additional check might be added
 	post = Post.query.get_or_404(id)
+	if post.poster.id != current_user.id:
+		flash("You are not authorized to update this post")
+		return redirect(url_for("get_posts"))
 	try:
 		if request.method == "POST":
 			slug_check = Post.query.filter_by(slug = request.form["slug"]).first()
@@ -333,6 +337,9 @@ def get_edit_post(id): # additional check might be added
 def delete_post(id):
 	try:
 		post = Post.query.get_or_404(id)
+		if post.poster.id != current_user.id:
+			flash("You are not authorized to delete this post!")
+			return redirect(url_for("get_posts"))
 		db.session.delete(post)
 		db.session.commit()
 		flash("Post Deleted Successfully!")
