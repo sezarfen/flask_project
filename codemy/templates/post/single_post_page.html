@@ -2,15 +2,44 @@
 
 {% include 'shared/flash_message.html' %}
 
-<h1>{{post.title}}</h1>
-<small>{{post.slug}}</small> <br>
-<small>{{post.date_posted}}</small>
-<small>Author: {{post.poster.username}}</small> <!-- we can reach the author from post.poster, backref='poster' -->
-<p class="text-justify">{{post.content}}</p>
-<a href="{{url_for('get_posts')}}" class="card-link">Go Back</a>
-{% if current_user.is_authenticated and post.poster_id == current_user.id %}
-	<a href="{{url_for('get_edit_post', id = post.id)}}" class="card-link">Edit Post</a>
-	<a href="{{url_for('delete_post', id = post.id)}}" class="card-link link-danger">Delete Post</a>
-{% endif %}
+<div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+	<h1>{{post.title}}</h1>
+	<small>{{post.slug}}</small> <br>
+	<small>{{post.date_posted}}</small>
+	<small>Author: {{post.poster.username}}</small> <!-- we can reach the author from post.poster, backref='poster' -->
+	<p class="text-justify">{{post.content}}</p>
+	<a href="{{url_for('get_posts')}}" class="card-link">Go Back</a>
+	
+	{% if current_user.is_authenticated and post.poster_id == current_user.id %}
+		<a href="{{url_for('get_edit_post', id = post.id)}}" class="card-link">Edit Post</a>
+		<a href="{{url_for('delete_post', id = post.id)}}" class="card-link link-danger">Delete Post</a>
+	{% endif %}
+
+</div>
+
+<h2>Comments:</h2>
+{% for comment in post.comments %}
+	<div class="shadow-none p-3 mb-5 bg-body-tertiary rounded">
+		<small><strong>{{comment.author.username}}</strong></small> <br>
+		{{comment.content}}
+		{% if current_user.id == comment.author.id %}
+			<br>
+			<a href="{{url_for('delete_comment', id = comment.id)}}" class="link-danger">Delete Comment</a>
+		{% endif %}
+	</div>
+{% endfor %}
+
+<form class="form" method="post" action="/comment">
+	{{comment_form.hidden_tag()}}
+
+	<input type="hidden" value="{{post.id}}" name="post_id">
+	<input type="hidden" value="{{post.slug}}" name="post_slug">
+
+	{{comment_form.content.label(class="form-label")}}
+	{{comment_form.content(class="form-control")}}
+
+	{{comment_form.submit(class="btn btn-light mt-3")}}
+
+</form>
 
 {% endblock content %}

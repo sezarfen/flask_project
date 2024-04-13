@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
-from webforms import UserForm, NamerForm, PostForm, LoginForm
+from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm
 
 #################################################################################
 #################################### CONFIGS ####################################
@@ -54,7 +54,8 @@ class Users(db.Model, UserMixin):
 	password = db.Column(db.String(101), nullable=False)
 	# User Can Have Many Posts # There will be fake column like poster for posts
 	posts = db.relationship("Post", backref="poster", lazy=True) # lazy=True as default, but lets implicit that
-	
+	comments = db.relationship("Comment", backref="author", lazy=True)
+
 	## Generate a String
 	def __repr__(self):
 		return '<Name %r>' % self.name
@@ -87,6 +88,8 @@ class Post(db.Model):
 	slug = db.Column(db.String(255)) # for a better url example instead of using /blog/1 using /blog/my_blog
 	# Foreign key to link users (refer to primary key of the user)
 	poster_id = db.Column(db.Integer, db.ForeignKey("users.id")) # this is querying the database, so it is lowercase
+	comments = db.relationship("Comment", backref="post", lazy=True)
+
 
 	def small_content(self):
 		if len(self.content) > 15:
@@ -94,6 +97,12 @@ class Post(db.Model):
 		else:
 			return self.content
 		
+class Comment(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+	content  = db.Column(db.Text, nullable=False)
+
 ######################### #######################################################
 ####################################   API   ####################################
 #################################################################################
@@ -297,11 +306,12 @@ def get_posts():
 
 @app.route("/post/<string:slug>")
 def get_single_post(slug):
+	comment_form = CommentForm()
 	post = Post.query.filter_by(slug = slug).first()
 	if post is None:
 		flash("Couldn't find that post")
 		return redirect(url_for("get_posts"))
-	return render_template("post/single_post_page.html", post = post)
+	return render_template("post/single_post_page.html", post = post, comment_form = comment_form)
 
 
 @app.route("/post/edit/<int:id>", methods=["GET", "POST"])
@@ -384,3 +394,33 @@ def logout():
 	logout_user()
 	flash("Logged Out Successfully!")
 	return redirect(url_for("get_login"))
+
+@app.route("/comment", methods=["POST"])
+@login_required
+def comment():
+	form = CommentForm()
+
+	if form.validate_on_submit():
+		try:
+			newComment = Comment(author_id = current_user.id, post_id=request.form["post_id"], content = form.content.data)
+			db.session.add(newComment)
+			db.session.commit()
+		except:
+			flash("Something went wrong.")
+		form.content.data = ""
+	return redirect(url_for("get_single_post", slug = request.form["post_slug"]))
+
+@app.route("/comment/delete/<int:id>", methods=["GET"])
+def delete_comment(id):
+	post_slug = 0
+	try:
+		comment = Comment.query.get_or_404(id)
+		post_slug = comment.post.slug
+		if comment.author.id != current_user.id:
+			flash("You are not authorized to delete this comment")
+		else:
+			db.session.delete(comment)
+			db.session.commit()
+	except:
+		flash("An error occured!")
+	return redirect(url_for("get_single_post", slug = post_slug))
