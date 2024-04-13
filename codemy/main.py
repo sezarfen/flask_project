@@ -3,16 +3,13 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask import flash  # for flash messages on the screen
 
-from flask_wtf import FlaskForm  # We can also do the forms ourselves, but it is easily helps us to build forms
-from wtforms import StringField, SubmitField, EmailField, PasswordField  # Different Fields we can import
-from wtforms.validators import DataRequired, \
-	EqualTo  # If something pop-up when someone doesn't fill that area, this one take cares of it
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms.widgets import TextArea
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+
+from webforms import UserForm, NamerForm, PostForm, LoginForm
 
 #################################################################################
 #################################### CONFIGS ####################################
@@ -22,8 +19,11 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, log
 app = Flask(__name__)
 # For CSRF Token
 app.config['SECRET_KEY'] = "!+wvnadscgth349G6hr8pERTB_hWrtlkt*12-G43rf"
-# Add Database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+# Add Database (SQLite)
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+# Database (MySql)
+# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://username:password@localhost/db_name" # +pymysql for new package to help connection
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:mysql1234@localhost/flask_project"
 # Initialize The Database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -46,13 +46,15 @@ def load_user(user_id):
 # Generate Model
 class Users(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key=True)
-	username = db.Column(db.String(25), nullable=False) # unique=True causes a problem
+	username = db.Column(db.String(25), nullable=False, unique=True) # unique=True causes a problem for sqlite database
 	name = db.Column(db.String(55), nullable=False)
 	email = db.Column(db.String(125), nullable=False, unique=True)
 	date_added = db.Column(db.DateTime, default=datetime.utcnow)
 	favorite_color = db.Column(db.String(25))
 	password = db.Column(db.String(101), nullable=False)
-
+	# User Can Have Many Posts # There will be fake column like poster for posts
+	posts = db.relationship("Post", backref="poster", lazy=True) # lazy=True as default, but lets implicit that
+	
 	## Generate a String
 	def __repr__(self):
 		return '<Name %r>' % self.name
@@ -80,9 +82,11 @@ class Post(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	title = db.Column(db.String(255))
 	content = db.Column(db.Text)
-	author = db.Column(db.String(255))
+	#author = db.Column(db.String(255))
 	date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 	slug = db.Column(db.String(255)) # for a better url example instead of using /blog/1 using /blog/my_blog
+	# Foreign key to link users (refer to primary key of the user)
+	poster_id = db.Column(db.Integer, db.ForeignKey("users.id")) # this is querying the database, so it is lowercase
 
 	def small_content(self):
 		if len(self.content) > 15:
@@ -90,43 +94,6 @@ class Post(db.Model):
 		else:
 			return self.content
 		
-
-#################################################################################
-####################################  FORMS  #################################### // Let's don't forget {{form.hidden_tag()}}
-#################################################################################
-
-
-
-# Generate Form for Model
-class UserForm(FlaskForm):
-	username = StringField("Username", validators=[DataRequired()])
-	name = StringField("Name", validators=[DataRequired()])
-	email = EmailField("Email", validators=[DataRequired()])
-	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
-	password = PasswordField("Password", validators=[DataRequired()])
-	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")])  # we can use that message later
-	submit = SubmitField(label="Submit!")
-
-
-# Generate Form Class
-class NamerForm(FlaskForm):
-	name = StringField("What's Your Name", validators=[DataRequired()])
-	submit = SubmitField(label="Submit It!")
-
-
-class PostForm(FlaskForm):
-	title = StringField("Title", validators=[DataRequired()])
-	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
-	author = StringField("Author", validators=[DataRequired()], render_kw={'readonly':''})
-	slug = StringField("Slug", validators=[DataRequired()])
-	submit = SubmitField(label="Submit!")
-
-class LoginForm(FlaskForm):
-	username = StringField("Username", validators=[DataRequired()])
-	password = PasswordField("Password", validators=[DataRequired()])
-	submit = SubmitField("Login!")
-
-
 ######################### #######################################################
 ####################################   API   ####################################
 #################################################################################
@@ -216,6 +183,7 @@ def add_user(): # Register Page
 			db.session.add(newUser)
 			db.session.commit()
 			flash("User Added successfully!")
+			return redirect(url_for("get_login"))
 		else:
 			flash("User not added, Email adress is already in use!")
 		username = form.username.data # I think, this is not in use currently
@@ -302,10 +270,9 @@ def add_post(): # We don't need to put @login_required all the time, we can also
 	form = PostForm()
 
 	if form.validate_on_submit(): # I think this already indicates request.method == "POST"
-		post = Post(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
+		post = Post(title=form.title.data, content=form.content.data, slug=form.slug.data)
 		form.title.data = ""
 		form.content.data = ""
-		form.author.data = ""
 		form.slug.data = ""
 		try:
 			db.session.add(post)
@@ -340,16 +307,12 @@ def get_single_post(slug):
 @login_required
 def get_edit_post(id): # additional check might be added
 	post = Post.query.get_or_404(id)
-	if post.author != current_user.username:
-		flash(f"This post does not belong to you, please contact with Author: {post.author}")
-		return redirect(url_for("get_single_post", slug = post.slug))
 	try:
 		if request.method == "POST":
 			slug_check = Post.query.filter_by(slug = request.form["slug"]).first()
 			if post.slug == request.form["slug"] or slug_check is None:
 				post.title = request.form["title"]
 				post.content = request.form["content"]
-				post.author = request.form["author"]
 				post.slug = request.form["slug"]
 				db.session.add(post)
 				db.session.commit()
@@ -361,7 +324,7 @@ def get_edit_post(id): # additional check might be added
 		elif request.method == "GET": 
 			post = Post.query.get_or_404(id)
 	except:
-		flash("error") # can change later
+		flash("error get_edit_post'dan gelen mesaj") # can change later
 	return render_template("post/update_post.html", post = post)
 
 
@@ -370,9 +333,6 @@ def get_edit_post(id): # additional check might be added
 def delete_post(id):
 	try:
 		post = Post.query.get_or_404(id)
-		if post.author != current_user.username:
-			flash(f"This post does not belong to you, please contact with Author: {post.author}")
-			return redirect(url_for("get_single_post", slug = post.slug))
 		db.session.delete(post)
 		db.session.commit()
 		flash("Post Deleted Successfully!")
@@ -406,7 +366,8 @@ def get_login():
 @app.route("/dashboard")
 @login_required
 def get_dashboard():
-	return render_template("dashboard.html")
+	our_users = Users.query.all()
+	return render_template("dashboard.html", our_users = our_users)
 
 
 # Generate Logout Function

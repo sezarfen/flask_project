@@ -17,7 +17,7 @@
 		{% endif %}
 	{% endfor %}
 
-	<h1>User List</h1>
+	<h1>Register</h1>
 	<div class="shadow p-3 mt-1 bg-body-tertiary rounded">
 		<form method="POST">
 			{{form.hidden_tag()}}
@@ -37,35 +37,4 @@
 		</form>
 	</div>
 	<br><br>
-
-	<table class="table table-dark table-striped table-hover mt-5">
-		<thead>
-			<tr>
-				<th class="col">#</th>
-				<th class="col">username</th>
-				<th class="col">name</th>
-				<th class="col">email</th>
-				<th class="col">Favorite Color</th>
-				<th class="col">Password</th>
-				<th class="col">action</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for our_user in our_users %}
-			<tr scope="row"> <!--table row-->
-				<td>{{our_user.id}}</td>
-				<td>{{our_user.username}}</td>
-				<td>{{our_user.name}}</td>
-				<td>{{our_user.email}}</td>
-				<td>{{our_user.favorite_color}}</td>
-				<td>{{our_user.shorten_the_password()}}</td>
-				<td>
-					<a class="btn btn-info" href="/user/{{our_user.id}}">Update</a>
-					<a class="btn btn-danger" href="{{url_for('delete_user', id = our_user.id) }}">Delete</a>
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-
 {% endblock %}

@@ -1,0 +1,37 @@
+#################################################################################
+####################################  FORMS  #################################### // Let's don't forget {{form.hidden_tag()}}
+#################################################################################
+
+from flask_wtf import FlaskForm  # We can also do the forms ourselves, but it is easily helps us to build forms
+from wtforms import StringField, SubmitField, EmailField, PasswordField  # Different Fields we can import
+from wtforms.validators import DataRequired, EqualTo  # If something pop-up when someone doesn't fill that area, this one take cares of it
+from wtforms.widgets import TextArea
+
+
+# Generate Form for Model
+class UserForm(FlaskForm):
+	username = StringField("Username", validators=[DataRequired()])
+	name = StringField("Name", validators=[DataRequired()])
+	email = EmailField("Email", validators=[DataRequired()])
+	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
+	password = PasswordField("Password", validators=[DataRequired()])
+	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")])  # we can use that message later
+	submit = SubmitField(label="Submit!")
+
+
+# Generate Form Class
+class NamerForm(FlaskForm):
+	name = StringField("What's Your Name", validators=[DataRequired()])
+	submit = SubmitField(label="Submit It!")
+
+
+class PostForm(FlaskForm):
+	title = StringField("Title", validators=[DataRequired()])
+	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+	slug = StringField("Slug", validators=[DataRequired()])
+	submit = SubmitField(label="Submit!")
+
+class LoginForm(FlaskForm):
+	username = StringField("Username", validators=[DataRequired()])
+	password = PasswordField("Password", validators=[DataRequired()])
+	submit = SubmitField("Login!")
