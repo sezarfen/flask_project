@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
-from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm
+from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm, SearchForm
 
 #################################################################################
 #################################### CONFIGS ####################################
@@ -37,6 +37,11 @@ login_manager.login_message = "Please Login first to visit that website." # The 
 def load_user(user_id):
 	return Users.query.get(int(user_id))
 
+# Pass Stuff To Navbar
+@app.context_processor
+def base():
+	form = SearchForm()
+	return dict(form=form)
 
 ################################################################################
 #################################### MODELS ####################################
@@ -101,6 +106,7 @@ class Comment(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+	date_posted = db.Column(db.DateTime , default=datetime.utcnow)
 	content  = db.Column(db.Text, nullable=False)
 
 ######################### #######################################################
@@ -395,6 +401,7 @@ def logout():
 	flash("Logged Out Successfully!")
 	return redirect(url_for("get_login"))
 
+
 @app.route("/comment", methods=["POST"])
 @login_required
 def comment():
@@ -410,6 +417,7 @@ def comment():
 		form.content.data = ""
 	return redirect(url_for("get_single_post", slug = request.form["post_slug"]))
 
+
 @app.route("/comment/delete/<int:id>", methods=["GET"])
 def delete_comment(id):
 	post_slug = 0
@@ -423,4 +431,14 @@ def delete_comment(id):
 			db.session.commit()
 	except:
 		flash("An error occured!")
-	return redirect(url_for("get_single_post", slug = post_slug))
+	return redirect(url_for("get_single_post", slug=post_slug))
+
+
+@app.route("/search", methods=["POST"])
+def search():
+	form = SearchForm()
+	if form.validate_on_submit():
+		keyword = form.searched.data
+		posts = Post.query.filter(Post.content.like("%" + keyword + "%"))
+		return render_template("search.html", form=form, posts=posts)
+	

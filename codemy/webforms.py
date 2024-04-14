@@ -39,3 +39,8 @@ class LoginForm(FlaskForm):
 class CommentForm(FlaskForm):
 	content = StringField("Your Comment", validators=[DataRequired()], widget=TextArea())
 	submit = SubmitField("Comment it out!")
+
+# Form for search
+class SearchForm(FlaskForm):
+	searched = StringField("Searched", validators=[DataRequired()])
+	submit = SubmitField("Search")

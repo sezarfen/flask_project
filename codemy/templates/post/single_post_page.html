@@ -21,6 +21,7 @@
 {% for comment in post.comments %}
 	<div class="shadow-none p-3 mb-5 bg-body-tertiary rounded">
 		<small><strong>{{comment.author.username}}</strong></small> <br>
+		<p style="font-size: 11px;">{{comment.date_posted}}</p>
 		{{comment.content}}
 		{% if current_user.id == comment.author.id %}
 			<br>
