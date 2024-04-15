@@ -14,7 +14,7 @@
 			<div class="card-body">
 				<h5 class="card-title">{{post.title}}</h5>
 				<h6 class="card-subtitle mb-2 text-muted">{{post.title}}</h6>
-				<p class="card-text">{{post.small_content()}}</p>
+				<p class="card-text">{{post.small_content()|safe}}</p>
 				<small>Author : {{post.poster.username}}</small> <br>
 				<a href="{{url_for('get_single_post', slug = post.slug)}}" class="card-link">Read More</a>
 			</div>

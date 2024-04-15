@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm  # We can also do the forms ourselves, but it is
 from wtforms import StringField, SubmitField, EmailField, PasswordField  # Different Fields we can import
 from wtforms.validators import DataRequired, EqualTo  # If something pop-up when someone doesn't fill that area, this one take cares of it
 from wtforms.widgets import TextArea
-
+from flask_ckeditor import CKEditorField
 
 # Generate Form for Model
 class UserForm(FlaskForm):
@@ -27,7 +27,7 @@ class NamerForm(FlaskForm):
 
 class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
-	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+	content = CKEditorField("Content", validators=[DataRequired()])
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField(label="Submit!")
 

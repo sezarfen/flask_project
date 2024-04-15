@@ -11,6 +11,8 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, log
 
 from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm, SearchForm
 
+from flask_ckeditor import CKEditor
+
 #################################################################################
 #################################### CONFIGS ####################################
 #################################################################################
@@ -42,6 +44,9 @@ def load_user(user_id):
 def base():
 	form = SearchForm()
 	return dict(form=form)
+
+# Rich text editor
+ckeditor = CKEditor(app)
 
 ################################################################################
 #################################### MODELS ####################################
@@ -441,4 +446,4 @@ def search():
 		keyword = form.searched.data
 		posts = Post.query.filter(Post.content.like("%" + keyword + "%"))
 		return render_template("search.html", form=form, posts=posts)
-	
+

@@ -25,6 +25,9 @@
 		{{form.submit(class="btn btn-info mt-3")}}
 	</form>
 
+	{{ ckeditor.load() }}
+ 	{{ ckeditor.config(name='content') }}
+
 	{% else %}
 	<h3> Sorry, you are not allowed to add post currently, please logged in or talk to the administrator if you are thinking something is wrong </h3>
 	<a href="{{url_for('get_login')}}" class="link-info">Login</a>

@@ -7,7 +7,7 @@
 	<small>{{post.slug}}</small> <br>
 	<small>{{post.date_posted}}</small>
 	<small>Author: {{post.poster.username}}</small> <!-- we can reach the author from post.poster, backref='poster' -->
-	<p class="text-justify">{{post.content}}</p>
+	<p class="text-justify">{{post.content|safe}}</p>
 	<a href="{{url_for('get_posts')}}" class="card-link">Go Back</a>
 	
 	{% if current_user.is_authenticated and post.poster_id == current_user.id %}
@@ -22,7 +22,7 @@
 	<div class="shadow-none p-3 mb-5 bg-body-tertiary rounded">
 		<small><strong>{{comment.author.username}}</strong></small> <br>
 		<p style="font-size: 11px;">{{comment.date_posted}}</p>
-		{{comment.content}}
+		{{ comment.content }}
 		{% if current_user.id == comment.author.id %}
 			<br>
 			<a href="{{url_for('delete_comment', id = comment.id)}}" class="link-danger">Delete Comment</a>
