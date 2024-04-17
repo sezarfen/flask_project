@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
-from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm, SearchForm
+from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm, SearchForm, UpdatePostForm
 
 from flask_ckeditor import CKEditor
 
@@ -328,29 +328,28 @@ def get_single_post(slug):
 @app.route("/post/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def get_edit_post(id): # additional check might be added
+	form = UpdatePostForm()
 	post = Post.query.get_or_404(id)
+
 	if post.poster.id != current_user.id:
 		flash("You are not authorized to update this post")
 		return redirect(url_for("get_posts"))
-	try:
-		if request.method == "POST":
-			slug_check = Post.query.filter_by(slug = request.form["slug"]).first()
-			if post.slug == request.form["slug"] or slug_check is None:
-				post.title = request.form["title"]
-				post.content = request.form["content"]
-				post.slug = request.form["slug"]
-				db.session.add(post)
-				db.session.commit()
-				flash("Post Updated Successfully!")
-				return redirect(url_for("single_post_page", slug = post.slug))
-			else:
-				flash("this slug is already in use!")
-				return render_template("post/update_post.html", post = post)
-		elif request.method == "GET": 
-			post = Post.query.get_or_404(id)
-	except:
-		flash("error get_edit_post'dan gelen mesaj") # can change later
-	return render_template("post/update_post.html", post = post)
+	
+	if form.validate_on_submit():
+		slug_check = Post.query.filter_by(slug = form.slug.data).first()
+		if post.slug == form.slug.data or slug_check is None:
+			post.title = form.title.data
+			post.content = form.content.data
+			post.slug = form.slug.data
+			db.session.add(post)
+			db.session.commit()
+			flash("Post Updated Successfully!")
+			return redirect(url_for("single_post_page", slug = post.slug))
+		else:
+			flash("this slug is already in use!")
+			return render_template("post/update_post.html", post=post, form=form)
+
+	return render_template("post/update_post.html", post=post, form=form)
 
 
 @app.route("/post/delete/<int:id>")
@@ -446,4 +445,3 @@ def search():
 		keyword = form.searched.data
 		posts = Post.query.filter(Post.content.like("%" + keyword + "%"))
 		return render_template("search.html", form=form, posts=posts)
-

@@ -3,16 +3,22 @@
 {% include 'shared/flash_message.html' %}
 
 <form class="form shadow p-3 mb-5 bg-body-tertiary rounded" method="POST">
-	<label for="title" class="form-label">Title</label>
-	<input type="text" class="form-control" name="title" value="{{post.title}}">
+	{{ form.hidden_tag() }}
+	
+	{{ form.title.label(class="form-label") }}
+	{{ form.title(class="form-control", value=post.title, placeholder=post.title) }}
+	
+	{{ form.content.label(class="form-label") }}
+	{% set f = form.content.process_data(post.content) %}
+	{{ form.content(class="form-control", placeholder=post.content) }}
 
-	<label for="content" class="form-label">Content</label>
-	<textarea name="content" id="content" rows="5" class="form-control">{{post.content}}</textarea>
-
-	<label for="slug" class="form-label">Slug</label>
-	<input type="text" class="form-control" name="slug" value="{{post.slug}}">
-
-	<input type="submit" class="btn btn-info mt-3" value="Update!">
+	{{ form.slug.label(class="form-label") }}
+	{{ form.slug(class="form-control", value=post.slug, placeholder=post.slug) }}
+	
+	{{ form.submit(class="btn btn-dark mt-3") }}
 </form>
+
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='content') }}
 
 {% endblock content %}

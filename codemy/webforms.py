@@ -31,6 +31,12 @@ class PostForm(FlaskForm):
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField(label="Submit!")
 
+class UpdatePostForm(FlaskForm):
+	title = StringField(label="Title", validators=[DataRequired()])
+	content = CKEditorField(label="Content", validators=[DataRequired()])
+	slug = StringField(label="Slug", validators=[DataRequired()])
+	submit = SubmitField(label="Update!")
+
 class LoginForm(FlaskForm):
 	username = StringField("Username", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])

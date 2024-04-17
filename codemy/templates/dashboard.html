@@ -6,14 +6,22 @@
 	<h1>Welcome to the dashboard!</h1>
 
 	<div class="shadow p-3 mb-5 bg-body-tertiary rounded">
-		<h2>Hello <span style="color: red;">{{current_user.username}}!</span></h2>
-		<small> <strong>Email:</strong> {{current_user.email}} </small><br>
-		<small> <strong>Favorite Color:</strong> {{current_user.favorite_color}} </small><br>
-		<small> <strong>Account Date:</strong> {{current_user.date_added}} </small><br>
-		<a href="{{url_for('get_user', id = current_user.id)}}" class="link-info">Edit Profile</a> <br>
-		<a href="{{url_for('logout')}}" class="link-danger">Log Out</a>
+		<div class="row">
+			<div class="col-8">
+				<h2>Hello <span style="color: red;">{{current_user.username}}!</span></h2>
+				<small> <strong>Email:</strong> {{current_user.email}} </small><br>
+				<small> <strong>Favorite Color:</strong> {{current_user.favorite_color}} </small><br>
+				<small> <strong>Account Date:</strong> {{current_user.date_added}} </small><br>
+				<a href="{{url_for('get_user', id = current_user.id)}}" class="link-info">Edit Profile</a> <br>
+				<a href="{{url_for('logout')}}" class="link-danger">Log Out</a>
+			</div>
+			<div class="col-4">
+					<img src="{{url_for('static', filename='images/reverse_human.png')}}" alt="Profile Picture" align="right">
+			</div>	
+		</div>
 	</div>
 
+	{% if current_user.username == "sezarfen" %}
 	<h1>User List</h1>
 	<table class="table table-dark table-striped table-hover mt-5">
 		<thead>
@@ -44,5 +52,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
+	{% endif %}
+
 
 {% endblock content %}
