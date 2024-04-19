@@ -21,18 +21,28 @@
 	<div class="shadow p-3 mt-1 bg-body-tertiary rounded">
 		<form method="POST">
 			{{form.hidden_tag()}}
+
 			{{form.username.label(class="form-label")}}
 			{{form.username(class="form-control", placeholder = "Username")}}
+			
 			{{form.name.label(class="form-label")}}
 			{{form.name(class="form-control", placeholder = "Name")}}
+			
 			{{form.email.label(class="form-label")}}
 			{{form.email(class="form-control", placeholder = "someone@somewhere")}}
+			
 			{{form.favorite_color.label(class="form-label")}}
 			{{form.favorite_color(class="form-control", placeholder= "Green" )}}
+			
+			{{form.about_author.label(class="form-label")}}
+			{{form.about_author(class="form-control", placeholder= "About Me" )}}
+			
 			{{form.password.label(class="form-label")}}
 			{{form.password(class="form-control", placeholder="*****")}}
+			
 			{{form.confirm_password.label(class="form-label")}}
 			{{form.confirm_password(class="form-control", placeholder="*****")}}
+			
 			{{form.submit(class="btn btn-success mt-3")}}
 		</form>
 	</div>

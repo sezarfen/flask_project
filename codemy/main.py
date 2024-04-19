@@ -60,7 +60,8 @@ class Users(db.Model, UserMixin):
 	name = db.Column(db.String(55), nullable=False)
 	email = db.Column(db.String(125), nullable=False, unique=True)
 	date_added = db.Column(db.DateTime, default=datetime.utcnow)
-	favorite_color = db.Column(db.String(25))
+	favorite_color = db.Column(db.String(25), nullable=False)
+	about_author = db.Column(db.String(500), default = "None")
 	password = db.Column(db.String(101), nullable=False)
 	# User Can Have Many Posts # There will be fake column like poster for posts
 	posts = db.relationship("Post", backref="poster", lazy=True) # lazy=True as default, but lets implicit that
@@ -198,8 +199,7 @@ def add_user(): # Register Page
 		user = Users.query.filter_by(email=form.email.data).first()
 		if user is None:
 			hashed = generate_password_hash(form.password.data)
-			newUser = Users(username=form.username.data, name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
-							password=hashed)
+			newUser = Users(username=form.username.data, name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data, about_author=form.about_author.data, password=hashed)
 			db.session.add(newUser)
 			db.session.commit()
 			flash("User Added successfully!")
@@ -211,6 +211,7 @@ def add_user(): # Register Page
 		form.name.data = ""
 		form.email.data = ""
 		form.favorite_color.data = ""
+		form.about_author.data = ""
 		form.password.data = ""
 
 	our_users = Users.query.order_by(Users.id)
@@ -444,4 +445,6 @@ def search():
 	if form.validate_on_submit():
 		keyword = form.searched.data
 		posts = Post.query.filter(Post.content.like("%" + keyword + "%"))
-		return render_template("search.html", form=form, posts=posts)
+		isEmpty = posts == []
+		print(isEmpty)
+		return render_template("search.html", form=form, posts=posts, isEmpty=isEmpty, keyword=keyword)

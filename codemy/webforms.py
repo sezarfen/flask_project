@@ -14,6 +14,7 @@ class UserForm(FlaskForm):
 	name = StringField("Name", validators=[DataRequired()])
 	email = EmailField("Email", validators=[DataRequired()])
 	favorite_color = StringField("Favorite Color", validators=[DataRequired()])
+	about_author = StringField("About Author", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])
 	confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match!")])  # we can use that message later
 	submit = SubmitField(label="Submit!")
