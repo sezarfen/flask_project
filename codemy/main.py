@@ -62,7 +62,7 @@ class Users(db.Model, UserMixin):
 	date_added = db.Column(db.DateTime, default=datetime.utcnow)
 	favorite_color = db.Column(db.String(25), nullable=False)
 	about_author = db.Column(db.String(500), default = "None")
-	password = db.Column(db.String(101), nullable=False)
+	password = db.Column(db.String(165), nullable=False)
 	# User Can Have Many Posts # There will be fake column like poster for posts
 	posts = db.relationship("Post", backref="poster", lazy=True) # lazy=True as default, but lets implicit that
 	comments = db.relationship("Comment", backref="author", lazy=True)
@@ -448,3 +448,13 @@ def search():
 		isEmpty = posts == []
 		print(isEmpty)
 		return render_template("search.html", form=form, posts=posts, isEmpty=isEmpty, keyword=keyword)
+
+
+@app.route('/admin-dashboard')
+@login_required
+def get_admin_dashboard():
+	if current_user.username != 'Mehonal' and current_user.username != 'sezarfen':
+		flash('You are not authorized to see this page.')
+		return redirect(url_for('get_dashboard'))
+	users = Users.query.all()
+	return render_template('admin_dashboard.html', users = users)
