@@ -4,7 +4,7 @@
 
 	{% include 'shared/flash_message.html' %}
 	
-	<form class="form" method="POST" action="">
+	<form class="form" method="POST" action="{{url_for('get_user', id=current_user.id )}}" enctype="multipart/form-data">
 
 		<!-- Because we use current_user.id on dashboard, user will be same with current_user İnşaAllah -->
 		
@@ -16,9 +16,9 @@
 
 		<label for="email" class="form-label">Email</label>
 		<input type="text" class="form-control" value="{{user.email}}" placeholder="{{user.email}}" name="email">
-
-		<label for="favorite_color" class="form-label">Favorite Color</label>
-		<input type="text" class="form-control" value="{{user.favorite_color}}" placeholder="{{user.favorite_color}}" name="favorite_color">
+		
+		<label for="file" class="form-label">Upload Profile Picture</label>
+		<input type="file" class="form-control" name="file">
 
 		<label for="confirm_password" class="form-label">Confirm password</label>
 		<input type="text" class="form-control" placeholder="User password" name="confirm_password">

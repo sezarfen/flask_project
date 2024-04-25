@@ -13,6 +13,9 @@ from webforms import UserForm, NamerForm, PostForm, LoginForm, CommentForm, Sear
 
 from flask_ckeditor import CKEditor
 
+import os
+from werkzeug.utils import secure_filename
+
 #################################################################################
 #################################### CONFIGS ####################################
 #################################################################################
@@ -34,6 +37,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "get_login" # The function that login will redirect, if login_required for example, works like url_for('get_login')
 login_manager.login_message = "Please Login first to visit that website." # The message to flash when a user is redirected to the login page.
+
+UPLOAD_FOLDER = os.getcwd() + '/static/images/'
+ALLOWED_EXTENSIONS = {'png', 'jpeg', 'jpg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -60,9 +70,9 @@ class Users(db.Model, UserMixin):
 	name = db.Column(db.String(55), nullable=False)
 	email = db.Column(db.String(125), nullable=False, unique=True)
 	date_added = db.Column(db.DateTime, default=datetime.utcnow)
-	favorite_color = db.Column(db.String(25), nullable=False)
 	about_author = db.Column(db.String(500), default = "None")
 	password = db.Column(db.String(165), nullable=False)
+	profile_picture = db.Column(db.String(505), nullable=True, default='reverse_human.png')
 	# User Can Have Many Posts # There will be fake column like poster for posts
 	posts = db.relationship("Post", backref="poster", lazy=True) # lazy=True as default, but lets implicit that
 	comments = db.relationship("Comment", backref="author", lazy=True)
@@ -87,7 +97,7 @@ class Users(db.Model, UserMixin):
 			return str(self.email)
 
 	def to_dict(self):
-		return {"id": self.id, "name": self.name, "email": self.email, "date_added" : self.date_added, "favorite_color": self.favorite_color, "password": self.password}
+		return {"id": self.id, "name": self.name, "email": self.email, "date_added" : self.date_added, "password": self.password}
 
 
 class Post(db.Model):
@@ -199,7 +209,7 @@ def add_user(): # Register Page
 		user = Users.query.filter_by(email=form.email.data).first()
 		if user is None:
 			hashed = generate_password_hash(form.password.data)
-			newUser = Users(username=form.username.data, name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data, about_author=form.about_author.data, password=hashed)
+			newUser = Users(username=form.username.data, name=form.name.data, email=form.email.data, about_author=form.about_author.data, password=hashed)
 			db.session.add(newUser)
 			db.session.commit()
 			flash("User Added successfully!")
@@ -210,7 +220,6 @@ def add_user(): # Register Page
 		form.username.data = ""
 		form.name.data = ""
 		form.email.data = ""
-		form.favorite_color.data = ""
 		form.about_author.data = ""
 		form.password.data = ""
 
@@ -228,22 +237,33 @@ def get_user(id):
 		user = Users.query.get_or_404(id)
 		return render_template("user/update_user.html", user=user)
 	elif request.method == "POST":
+		if 'file' not in request.files:
+			flash('No Profile Picture is Given')
+			return redirect(url_for('get_user', id=current_user.id))
 		user = Users.query.get_or_404(id)
 		user.username = request.form['username']
 		user.name = request.form['name']
 		user.email = request.form['email']
-		user.favorite_color = request.form['favorite_color']
 		confirm_password = request.form['confirm_password']
-		if check_password_hash(user.password, confirm_password):
-			db.session.add(user)
-			db.session.commit()
-			flash("User updated succesfully!")
-		else:
-			flash("Password didn't match")
-			return redirect(url_for("get_user", id=user.id))
-		return redirect(url_for("add_user"))
+		file = request.files['file']
+		if file.filename == '':
+			flash('No selected file')
+			return redirect(request.url) # Different approach
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+			user.profile_picture = filename
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			if check_password_hash(user.password, confirm_password):
+				db.session.add(user)
+				db.session.commit()
+				flash("User updated succesfully!")
+				return redirect(url_for('get_dashboard'))
+			else:
+				flash("Password didn't match")
+				return redirect(url_for("get_user", id=user.id))
+		return redirect(url_for("get_dashboard"))
 	else:
-		return redirect(url_for("add_user"))
+		return redirect(url_for("get_dashboard"))
 
 
 @app.route("/user/delete/<int:id>")
