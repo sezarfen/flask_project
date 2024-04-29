@@ -54,6 +54,14 @@
 		</tbody>
 	</table>
 	{% endif %}
-
+	
+	<h3 style="color: blue;">Users that I follow</h3>
+	{% for following in current_user.following.all() %}
+		<h5>{{following.username}}</h5>
+	{% endfor %}
+	<h3>My Followers</h3>
+	{% for follower in current_user.followers.all() %}
+		<h5>{{follower.username}}</h5>
+	{% endfor %}
 
 {% endblock content %}

@@ -25,10 +25,10 @@ app = Flask(__name__)
 # For CSRF Token
 app.config['SECRET_KEY'] = "!+wvnadscgth349G6hr8pERTB_hWrtlkt*12-G43rf"
 # Add Database (SQLite)
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 # Database (MySql)
 # app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://username:password@localhost/db_name" # +pymysql for new package to help connection
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:mysql1234@localhost/flask_project"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:mysql1234@localhost/flask_project"
 # Initialize The Database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -62,6 +62,12 @@ ckeditor = CKEditor(app)
 #################################### MODELS ####################################
 ################################################################################
 
+follower_followee = db.Table('follower_followee',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('followee_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+)
+
+
 
 # Generate Model
 class Users(db.Model, UserMixin):
@@ -76,6 +82,12 @@ class Users(db.Model, UserMixin):
 	# User Can Have Many Posts # There will be fake column like poster for posts
 	posts = db.relationship("Post", backref="poster", lazy=True) # lazy=True as default, but lets implicit that
 	comments = db.relationship("Comment", backref="author", lazy=True)
+	followers = db.relationship('Users',
+                                secondary=follower_followee,
+                                primaryjoin=(follower_followee.c.followee_id == id),
+                                secondaryjoin=(follower_followee.c.follower_id == id),
+                                backref=db.backref('following', lazy='dynamic'),
+                                lazy='dynamic')
 
 	## Generate a String
 	def __repr__(self):
@@ -478,3 +490,50 @@ def get_admin_dashboard():
 		return redirect(url_for('get_dashboard'))
 	users = Users.query.all()
 	return render_template('admin_dashboard.html', users = users)
+
+
+@app.route('/profile/<string:username>')
+def get_user_profile(username):
+	user = Users.query.filter_by(username=username).first()
+
+	if user is None:
+		flash(f'{username} is not found!')
+		return redirect(url_for('index'))
+	else:
+		return render_template('user/user_profile.html', user=user)
+	
+@app.route('/follow_user/<int:to_follow>', methods=['GET'])
+@login_required
+def perform_follow_user(to_follow):
+
+	# array cekip oraya ekleme islemi yapilabilir sanirim, bunu following edecek kisi icin yapsak da yeterli olabilir duruma gore
+	# user_will_follow = Users.query.get(follower_id) # this is actually the current_user
+	user_to_follow = Users.query.get(to_follow)
+	if user_to_follow in current_user.following:
+		flash('You are already following that user!')
+		return redirect('get_dashboard')
+	else:
+		current_user.following.append(user_to_follow)
+		db.session.add(user_to_follow)
+		db.session.add(current_user)
+		db.session.commit()
+		flash('You succesfully followed that user!')
+		return redirect(url_for('get_user_profile', username=user_to_follow.username))
+	
+@app.route('/unfollow_user/<int:to_unfollow>', methods=['GET'])
+@login_required
+def perform_unfollow_user(to_unfollow):
+
+	# array cekip oraya ekleme islemi yapilabilir sanirim, bunu following edecek kisi icin yapsak da yeterli olabilir duruma gore
+	# user_will_follow = Users.query.get(follower_id) # this is actually the current_user
+	user_to_unfollow = Users.query.get(to_unfollow)
+	if user_to_unfollow is None:
+		flash('Could not find that user!')
+		return redirect('get_dashboard')
+	else:
+		current_user.following.remove(user_to_unfollow)
+		db.session.add(user_to_unfollow)
+		db.session.add(current_user)
+		db.session.commit()
+		flash('You succesfully unfollowed that user!')
+		return redirect(url_for('get_user_profile', username=user_to_unfollow.username))

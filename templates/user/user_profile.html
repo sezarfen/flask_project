@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% include 'shared/flash_message.html' %}
+
+    <h1>User Profile : {{user.username}} </h1>
+
+    <div class="shadow-lg p-3 mb-5 mt-5 bg-body-tertiary rounded">
+        <img src="{{url_for('static', filename='images/' + user.profile_picture)}}" alt="Profile Picture" align="left" width="355px" height="355px">
+        <strong>Username :</strong> <p>{{user.username}}</p>
+        <strong>Email :</strong> <p>{{user.email}}</p>
+        <strong>About :</strong> <p>{{user.about_author}}</p>
+        {% if current_user.is_authenticated and user.id != current_user.id %}
+        {# Maybe we can also check here that if we are following this user already #}
+            
+            {% if user in current_user.following.all() %}
+                <div>
+                    <a href="{{url_for('perform_unfollow_user', to_unfollow = user.id )}}" class="btn btn-info">Unfollow!</a>
+                </div>    
+            {% else %}
+                <div>
+                    <a href="{{url_for('perform_follow_user', to_follow = user.id )}}" class="btn btn-info">Follow User!</a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock content %}
