@@ -57,11 +57,15 @@
 	
 	<h3 style="color: blue;">Users that I follow</h3>
 	{% for following in current_user.following.all() %}
-		<h5>{{following.username}}</h5>
-	{% endfor %}
+		<div class="shadow p-3 mb-1 bg-body-tertiary rounded">
+			<h5>{{following.username}}</h5>
+		</div>
+		{% endfor %}
 	<h3>My Followers</h3>
 	{% for follower in current_user.followers.all() %}
+	<div class="shadow p-3 mb-1 bg-body-tertiary rounded">
 		<h5>{{follower.username}}</h5>
+	</div>	
 	{% endfor %}
 
 {% endblock content %}
